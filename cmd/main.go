@@ -19,14 +19,13 @@ func main() {
 		log.Fatal("Entity name is required")
 	}
 
-	// Mock database config - would be configured through env variables in a real app
 	dbConfig := db.DBConfig{
-		Driver:   "postgres", // or "mysql"
+		Driver:   "mysql",
 		Host:     "localhost",
-		Port:     5432,
-		User:     "youruser",
-		Password: "yourpassword",
-		DBName:   "yourdbname",
+		Port:     3306,
+		User:     "root",
+		Password: "",
+		DBName:   "mydb",
 	}
 
 	dbConn, err := db.NewConnection(dbConfig)
@@ -36,6 +35,8 @@ func main() {
 	defer dbConn.Close()
 
 	router := mux.NewRouter()
+	router.Use(api.LoggingMiddleware)
+
 	handler := api.CRUDHandler{
 		EntityName: *entity,
 		DB:         dbConn,
