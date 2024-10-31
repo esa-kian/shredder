@@ -63,3 +63,12 @@ func GenerateCreateTableSQL(model models.Model) string {
 	query += strings.Join(fields, ", ") + ");"
 	return query
 }
+
+func CreateTableFromModel(db *sql.DB, model models.Model) error {
+	query := GenerateCreateTableSQL(model)
+	_, err := db.Exec(query)
+	if err != nil {
+		return fmt.Errorf("error creating table for %s: %w", model.EntityName, err)
+	}
+	return nil
+}
