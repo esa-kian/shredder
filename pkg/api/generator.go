@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -224,4 +225,33 @@ func (h *CRUDHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithSuccess(w, map[string]string{"status": "deleted"})
+}
+
+func GenerateControllerFile(entityName string) error {
+	controllerTemplate := fmt.Sprintf(`
+		package controllers
+
+		import ( "net/http" )
+
+		// %sController handles CRUD operations for the %s model type %sController struct { // Add necessary fields here }
+
+		// New%sController initializes the controller for %s func New%sController() *%sController { return &%sController{} }
+
+		// Example of a Create handler func (c *%sController) Create(w http.ResponseWriter, r *http.Request) { // TODO: Implement Create } `, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName)
+	// Write controller file
+	fileName := fmt.Sprintf("./controllers/%s_controller.go", entityName)
+	return os.WriteFile(fileName, []byte(controllerTemplate), 0644)
+}
+
+func GenerateRoutesFile(entityName string) error {
+	routesTemplate := fmt.Sprintf(`
+		package routes
+
+		import ( "net/http" "%s/controllers" )
+
+		func Register%sRoutes() { controller := controllers.New%sController() http.HandleFunc("/%s/create", controller.Create) // TODO: Add other CRUD routes } `, entityName, entityName, entityName, entityName)
+
+	// Write routes file
+	fileName := fmt.Sprintf("./routes/%s_routes.go", entityName)
+	return os.WriteFile(fileName, []byte(routesTemplate), 0644)
 }
