@@ -2,13 +2,10 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
-	"net/http"
 
-	"github.com/esa-kian/shredder/pkg/api"
 	"github.com/esa-kian/shredder/pkg/db"
-	"github.com/gorilla/mux"
+	"github.com/esa-kian/shredder/pkg/models"
 )
 
 func main() {
@@ -34,15 +31,18 @@ func main() {
 	}
 	defer dbConn.Close()
 
-	router := mux.NewRouter()
-	router.Use(api.LoggingMiddleware)
-
-	handler := api.CRUDHandler{
-		EntityName: *entity,
-		DB:         dbConn,
+	userModel := models.Model{
+		EntityName: "User",
+		Fields: []models.Field{
+			{Name: "id", DataType: "INT", IsPrimaryKey: true},
+			{Name: "name", DataType: "VARCHAR(255)", IsRequired: true},
+			{Name: "email", DataType: "VARCHAR(255)", IsRequired: true},
+			{Name: "age", DataType: "INT", IsRequired: true},
+		},
 	}
-	handler.RegisterRoutes(router)
 
-	fmt.Printf("Starting Shredder server for %s entity...\n", *entity)
-	log.Fatal(http.ListenAndServe(":8080", router))
+	if err := db.CreateTableFromModel(dbConn, userModel); err != nil {
+		log.Fatal("Error creating table:", err)
+	}
+	log.Println("Table created successfully!")
 }
