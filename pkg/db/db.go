@@ -3,7 +3,9 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
+	"github.com/esa-kian/shredder/pkg/models"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 )
@@ -41,4 +43,32 @@ func NewConnection(cfg DBConfig) (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+func GenerateCreateTableSQL(model models.Model) string {
+	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (", model.EntityName)
+	fields := []string{}
+
+	for _, field := range model.Fields {
+		fieldSQL := fmt.Sprintf("%s %s", field.Name, field.DataType)
+		if field.IsPrimaryKey {
+			fieldSQL += " PRIMARY KEY"
+		}
+		if field.IsRequired {
+			fieldSQL += " NOT NULL"
+		}
+		fields = append(fields, fieldSQL)
+	}
+
+	query += strings.Join(fields, ", ") + ");"
+	return query
+}
+
+func CreateTableFromModel(db *sql.DB, model models.Model) error {
+	query := GenerateCreateTableSQL(model)
+	_, err := db.Exec(query)
+	if err != nil {
+		return fmt.Errorf("error creating table for %s: %w", model.EntityName, err)
+	}
+	return nil
 }
