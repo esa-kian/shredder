@@ -242,3 +242,16 @@ func GenerateControllerFile(entityName string) error {
 	fileName := fmt.Sprintf("./controllers/%s_controller.go", entityName)
 	return os.WriteFile(fileName, []byte(controllerTemplate), 0644)
 }
+
+func GenerateRoutesFile(entityName string) error {
+	routesTemplate := fmt.Sprintf(`
+		package routes
+
+		import ( "net/http" "%s/controllers" )
+
+		func Register%sRoutes() { controller := controllers.New%sController() http.HandleFunc("/%s/create", controller.Create) // TODO: Add other CRUD routes } `, entityName, entityName, entityName, entityName)
+
+	// Write routes file
+	fileName := fmt.Sprintf("./routes/%s_routes.go", entityName)
+	return os.WriteFile(fileName, []byte(routesTemplate), 0644)
+}
