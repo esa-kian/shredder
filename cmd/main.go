@@ -10,6 +10,7 @@ import (
 	"github.com/esa-kian/shredder/pkg/api"
 	"github.com/esa-kian/shredder/pkg/db"
 	"github.com/esa-kian/shredder/pkg/migration"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -20,13 +21,16 @@ func main() {
 		log.Fatal("Entity name is required")
 	}
 
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	dbConfig := db.DBConfig{
 		Driver:   "mysql",
 		Host:     "localhost",
 		Port:     3306,
-		User:     "",
-		Password: "",
-		DBName:   "",
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		DBName:   os.Getenv("DB_NAME"),
 	}
 
 	dbConn, err := db.NewConnection(dbConfig)
