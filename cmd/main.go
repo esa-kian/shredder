@@ -1,14 +1,16 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
+	"os"
 
 	"github.com/esa-kian/shredder/pkg/api"
 	"github.com/esa-kian/shredder/pkg/db"
-	"github.com/gorilla/mux"
+	"github.com/esa-kian/shredder/pkg/migration"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -19,13 +21,16 @@ func main() {
 		log.Fatal("Entity name is required")
 	}
 
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	dbConfig := db.DBConfig{
 		Driver:   "mysql",
 		Host:     "localhost",
 		Port:     3306,
-		User:     "root",
-		Password: "",
-		DBName:   "mydb",
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		DBName:   os.Getenv("DB_NAME"),
 	}
 
 	dbConn, err := db.NewConnection(dbConfig)
@@ -34,15 +39,61 @@ func main() {
 	}
 	defer dbConn.Close()
 
-	router := mux.NewRouter()
-	router.Use(api.LoggingMiddleware)
-
-	handler := api.CRUDHandler{
-		EntityName: *entity,
-		DB:         dbConn,
+	// Create table for model
+	if err := RunMigrations(dbConn); err != nil {
+		log.Fatal("Migration error:", err)
 	}
-	handler.RegisterRoutes(router)
 
-	fmt.Printf("Starting Shredder server for %s entity...\n", *entity)
-	log.Fatal(http.ListenAndServe(":8080", router))
+	if err := ensureDir("./controllers"); err != nil {
+		log.Fatal("Failed to ensure controllers directory:", err)
+	}
+	// Generate controller and routes
+	if err := api.GenerateControllerFile(*entity); err != nil {
+		log.Fatal("Failed to generate controller file:", err)
+	}
+
+	if err := ensureDir("./routes"); err != nil {
+		log.Fatal("Failed to ensure routes directory:", err)
+	}
+	if err := api.GenerateRoutesFile(*entity); err != nil {
+		log.Fatal("Failed to generate routes file:", err)
+	}
+
+	fmt.Printf("Successfully created table, controller, and routes for %s entity.\n", *entity)
+
+}
+
+func RunMigrations(dbConn *sql.DB) error {
+	modelsList, err := migration.LoadModelsFromMigrationDir()
+	if err != nil {
+		return fmt.Errorf("failed to load models: %w", err)
+	}
+
+	for _, model := range modelsList {
+		exists, err := db.TableExists(dbConn, model.EntityName)
+		if err != nil {
+			return fmt.Errorf("error checking table existence: %w", err)
+		}
+
+		if !exists {
+			if err := db.CreateTableFromModel(dbConn, model); err != nil {
+				return fmt.Errorf("failed to create table for %s: %w", model.EntityName, err)
+			}
+			log.Printf("Table created for entity %s", model.EntityName)
+		} else {
+			log.Printf("Table for entity %s already exists, skipping", model.EntityName)
+		}
+	}
+
+	return nil
+}
+
+func ensureDir(dirName string) error {
+	if _, err := os.Stat(dirName); os.IsNotExist(err) {
+		err = os.MkdirAll(dirName, 0755) // Creates the directory with read/write permissions
+		if err != nil {
+			return fmt.Errorf("failed to create directory %s: %w", dirName, err)
+		}
+	}
+	return nil
 }
