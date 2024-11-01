@@ -72,3 +72,12 @@ func CreateTableFromModel(db *sql.DB, model models.Model) error {
 	}
 	return nil
 }
+
+func TableExists(db *sql.DB, tableName string) (bool, error) {
+	var exists bool
+	query := fmt.Sprintf("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = '%s'", tableName)
+	if err := db.QueryRow(query).Scan(&exists); err != nil {
+		return false, fmt.Errorf("error checking table existence for %s: %w", tableName, err)
+	}
+	return exists, nil
+}
