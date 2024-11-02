@@ -257,9 +257,17 @@ func GenerateRoutesFile(entityName string) error {
 	routesTemplate := fmt.Sprintf(`
 		package routes
 
-		import ( "net/http" "%s/controllers" )
+		import ( 
+			"net/http" 
+			"%s/controllers" 
+		)
 
-		func Register%sRoutes() { controller := controllers.New%sController() http.HandleFunc("/%s/create", controller.Create) // TODO: Add other CRUD routes } `, entityName, entityName, entityName, entityName)
+		func Register%sRoutes() { 
+			controller := controllers.New%sController() 
+			http.HandleFunc("/%s/create", controller.Create) 
+			// TODO: Add other CRUD routes 
+		} 
+		`, entityName, entityName, entityName, entityName)
 
 	// Write routes file
 	fileName := fmt.Sprintf("./routes/%s_routes.go", entityName)
