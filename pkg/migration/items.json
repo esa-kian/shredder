@@ -1,0 +1,8 @@
+{
+    "EntityName": "items",
+    "Fields": [
+      { "Name": "id", "DataType": "INT", "IsPrimaryKey": true },
+      { "Name": "title", "DataType": "VARCHAR(255)", "IsRequired": true },
+      { "Name": "description", "DataType": "VARCHAR(255)", "IsRequired": true }
+    ]
+  }

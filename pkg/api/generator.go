@@ -267,7 +267,7 @@ func GenerateRoutesFile(entityName string) error {
 			http.HandleFunc("/%s/create", controller.Create) 
 			// TODO: Add other CRUD routes 
 		} 
-		`, entityName, entityName, entityName, entityName)
+		`, os.Getenv("SOURCE"), entityName, entityName, entityName)
 
 	// Write routes file
 	fileName := fmt.Sprintf("./routes/%s_routes.go", entityName)
