@@ -12,14 +12,14 @@ import (
 func LoadModelsFromMigrationDir() ([]models.Model, error) {
 	var modelsList []models.Model
 
-	files, err := os.ReadDir(".")
+	files, err := os.ReadDir("./pkg/migration/")
 	if err != nil {
 		return nil, fmt.Errorf("failed to read migration directory: %w", err)
 	}
 
 	for _, file := range files {
 		if filepath.Ext(file.Name()) == ".json" {
-			data, err := os.ReadFile(filepath.Join("./migration", file.Name()))
+			data, err := os.ReadFile(filepath.Join("./pkg/migration", file.Name()))
 			if err != nil {
 				return nil, fmt.Errorf("failed to read model file %s: %w", file.Name(), err)
 			}

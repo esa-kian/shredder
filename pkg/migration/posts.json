@@ -1,5 +1,5 @@
 {
-    "EntityName": "post",
+    "EntityName": "posts",
     "Fields": [
       { "Name": "id", "DataType": "INT", "IsPrimaryKey": true },
       { "Name": "title", "DataType": "VARCHAR(255)", "IsRequired": true },

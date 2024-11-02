@@ -11,6 +11,7 @@ import (
 	"github.com/esa-kian/shredder/pkg/db"
 	"github.com/esa-kian/shredder/pkg/migration"
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -64,8 +65,10 @@ func main() {
 }
 
 func RunMigrations(dbConn *sql.DB) error {
+
 	modelsList, err := migration.LoadModelsFromMigrationDir()
 	if err != nil {
+
 		return fmt.Errorf("failed to load models: %w", err)
 	}
 
@@ -79,9 +82,9 @@ func RunMigrations(dbConn *sql.DB) error {
 			if err := db.CreateTableFromModel(dbConn, model); err != nil {
 				return fmt.Errorf("failed to create table for %s: %w", model.EntityName, err)
 			}
-			log.Printf("Table created for entity %s", model.EntityName)
+			logrus.Printf("Table created for entity %s", model.EntityName)
 		} else {
-			log.Printf("Table for entity %s already exists, skipping", model.EntityName)
+			logrus.Printf("Table for entity %s already exists, skipping", model.EntityName)
 		}
 	}
 
