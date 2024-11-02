@@ -233,11 +233,21 @@ func GenerateControllerFile(entityName string) error {
 
 		import ( "net/http" )
 
-		// %sController handles CRUD operations for the %s model type %sController struct { // Add necessary fields here }
+		// %sController handles CRUD operations for the %s model
+		type %sController struct { 
+		// Add necessary fields here 
+		}
 
-		// New%sController initializes the controller for %s func New%sController() *%sController { return &%sController{} }
+		// New%sController initializes the controller for %s 
+		func New%sController() *%sController { 
+			return &%sController{} 
+		}
 
-		// Example of a Create handler func (c *%sController) Create(w http.ResponseWriter, r *http.Request) { // TODO: Implement Create } `, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName)
+		// Example of a Create handler 
+		func (c *%sController) Create(w http.ResponseWriter, r *http.Request) { 
+		// TODO: Implement Create 
+		} 
+		`, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName)
 	// Write controller file
 	fileName := fmt.Sprintf("./controllers/%s_controller.go", entityName)
 	return os.WriteFile(fileName, []byte(controllerTemplate), 0644)
