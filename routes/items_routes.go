@@ -1,14 +1,18 @@
+package routes
 
-		package routes
+import (
+	"github.com/gorilla/mux"
 
-		import ( 
-			"net/http" 
-			"github.com/esa-kian/shredder/controllers" 
-		)
+	"github.com/esa-kian/shredder/controllers"
+)
 
-		func RegisteritemsRoutes() { 
-			controller := controllers.NewitemsController() 
-			http.HandleFunc("/items/create", controller.Create) 
-			// TODO: Add other CRUD routes 
-		} 
-		
+func RegisteritemsRoutes() {
+	controller := controllers.NewitemsController()
+	r := mux.NewRouter()
+
+	r.HandleFunc("/items", controller.Create).Methods("POST")
+	r.HandleFunc("/items/{id}", controller.Update).Methods("PUT")
+	r.HandleFunc("/items/{id}", controller.Read).Methods("GET")
+	r.HandleFunc("/items/{id}", controller.Delete).Methods("DELETE")
+
+}

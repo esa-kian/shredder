@@ -247,7 +247,19 @@ func GenerateControllerFile(entityName string) error {
 		func (c *%sController) Create(w http.ResponseWriter, r *http.Request) { 
 		// TODO: Implement Create 
 		} 
-		`, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName)
+
+		func (c *%sController) Update(w http.ResponseWriter, r *http.Request) { 
+		// TODO: Implement Create 
+		} 
+
+		func (c *%sController) Read(w http.ResponseWriter, r *http.Request) { 
+		// TODO: Implement Create 
+		} 
+
+		func (c *%sController) Delete(w http.ResponseWriter, r *http.Request) { 
+		// TODO: Implement Create 
+		} 
+		`, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName)
 	// Write controller file
 	fileName := fmt.Sprintf("./controllers/%s_controller.go", entityName)
 	return os.WriteFile(fileName, []byte(controllerTemplate), 0644)
@@ -258,16 +270,22 @@ func GenerateRoutesFile(entityName string) error {
 		package routes
 
 		import ( 
-			"net/http" 
+			"github.com/gorilla/mux"
+			
 			"%s/controllers" 
 		)
 
 		func Register%sRoutes() { 
 			controller := controllers.New%sController() 
-			http.HandleFunc("/%s/create", controller.Create) 
-			// TODO: Add other CRUD routes 
+			r := mux.NewRouter()
+
+			r.HandleFunc("/%s", controller.Create).Methods("POST")
+			r.HandleFunc("/%s/{id}", controller.Update).Methods("PUT")
+			r.HandleFunc("/%s/{id}", controller.Read).Methods("GET")
+			r.HandleFunc("/%s/{id}", controller.Delete).Methods("DELETE")
+
 		} 
-		`, os.Getenv("SOURCE"), entityName, entityName, entityName)
+		`, os.Getenv("SOURCE"), entityName, entityName, entityName, entityName, entityName, entityName)
 
 	// Write routes file
 	fileName := fmt.Sprintf("./routes/%s_routes.go", entityName)
