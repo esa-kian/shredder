@@ -1,9 +1,0 @@
-{
-    "EntityName": "posts",
-    "Fields": [
-      { "Name": "id", "DataType": "INT", "IsPrimaryKey": true },
-      { "Name": "title", "DataType": "VARCHAR(255)", "IsRequired": true },
-      { "Name": "body", "DataType": "VARCHAR(255)", "IsRequired": true },
-      { "Name": "author", "DataType": "VARCHAR(255)", "IsRequired": true }
-    ]
-  }
