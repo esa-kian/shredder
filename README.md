@@ -36,7 +36,7 @@ go get github.com/esa-kian/shredder
 DB_USER=root
 DB_PASSWORD=yourpassword
 DB_NAME=your_db
-SOURCE=""
+NAMESPACE=""
 ```
 3. **Initialize Shredder:** Run your application to load models, generate tables, and create CRUD APIs for each entity:
 
