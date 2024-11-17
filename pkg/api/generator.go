@@ -285,7 +285,7 @@ func GenerateRoutesFile(entityName string) error {
 			r.HandleFunc("/%s/{id}", controller.Delete).Methods("DELETE")
 
 		} 
-		`, os.Getenv("SOURCE"), entityName, entityName, entityName, entityName, entityName, entityName)
+		`, os.Getenv("NAMESPACE"), entityName, entityName, entityName, entityName, entityName, entityName)
 
 	// Write routes file
 	fileName := fmt.Sprintf("./routes/%s_routes.go", entityName)
