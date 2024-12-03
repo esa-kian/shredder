@@ -4,9 +4,9 @@ Shredder is a Golang library that automatically generates RESTful CRUD APIs for 
 
 ## Features
 
-- **Automatic CRUD API Generation**: Generates Create, Read, Update, and Delete endpoints for each entity.
+- **Command-Line CRUD Generation**: Generate Create, Read, Update, and Delete endpoints for each entity by running a single command.
 - **Model-Based Table Creation**: Reads model files from the `migration` directory, checks for existing tables, and creates them if they do not already exist.
-- **Easy Configuration**: Set up connection details and other configurations easily using a `.env` file.
+- **Easy Configuration**: Configure connection details and other settings easily using a `.env` file.
 - **Modular Architecture**: Easily extend and customize generated controllers and routes.
 
 ## Installation
@@ -21,12 +21,12 @@ go get github.com/esa-kian/shredder
 1. **Define Models:** Add your entity model files as JSON files in the `migration` directory. Each JSON file should contain fields like the following example:
 ```json
 {
-  "EntityName": "User",
+  "EntityName": "Item",
   "Fields": [
     { "Name": "id", "DataType": "INT", "IsPrimaryKey": true },
     { "Name": "name", "DataType": "VARCHAR(255)", "IsRequired": true },
-    { "Name": "email", "DataType": "VARCHAR(255)", "IsRequired": true },
-    { "Name": "age", "DataType": "INT", "IsRequired": true }
+    { "Name": "description", "DataType": "TEXT" },
+    { "Name": "price", "DataType": "DECIMAL(10, 2)", "IsRequired": true }
   ]
 }
 ```
@@ -38,43 +38,68 @@ DB_PASSWORD=yourpassword
 DB_NAME=your_db
 NAMESPACE=""
 ```
-3. **Initialize Shredder:** Run your application to load models, generate tables, and create CRUD APIs for each entity:
+3. **Set Up a CLI to Run Shredder Commands:** In your project, create a `main.go` file in the `cmd` directory or another preferred location. Here’s how to structure it:
 
 ```go
 package main
 
 import (
     "log"
-    "database/sql"
-    _ "github.com/go-sql-driver/mysql"
+    "os"
     "github.com/esa-kian/shredder"
 )
 
 func main() {
-    // Initialize the database connection
-    db, err := sql.Open("mysql", "<dsn>")
+    // Get the entity name from command-line arguments
+    if len(os.Args) < 2 {
+        log.Fatal("Please provide an entity name using -entity <entity_name>")
+    }
+    entityName := os.Args[1]
+
+    // Run Shredder to generate CRUD APIs for the specified entity
+    err := shredder.GenerateCRUD(entityName)
     if err != nil {
-        log.Fatal("Failed to connect to database:", err)
-    }
-    defer db.Close()
-
-    // Run migrations
-    if err := shredder.RunMigrations(db); err != nil {
-        log.Fatal("Migration error:", err)
+        log.Fatalf("Error generating CRUD for %s: %v", entityName, err)
     }
 
-    // Start Shredder API server
-    shredder.StartServer(db)
+    log.Printf("CRUD for entity %s generated successfully!", entityName)
 }
 ```
-4. **Access APIs:** Once the server is running, you can access endpoints at:
+4. **Generate CRUD APIs for an Entity:** Run the following command in your terminal to generate the CRUD operations:
 ```bash
-POST    /api/{entity}     // Create a new entity
-GET     /api/{entity}     // List entities
-GET     /api/{entity}/{id} // Get an entity by ID
-PUT     /api/{entity}/{id} // Update an entity
-DELETE  /api/{entity}/{id} // Delete an entity
+go run cmd/main.go -entity items
 ```
+
+5. **Calling the APIs:** After running the command, you can access the generated API endpoints. For example, if your server is running on `localhost:8080`, you can call the APIs as follows:
+- **Create a new item** (POST request):
+```bash
+curl -X POST http://localhost:8080/api/items \
+-H "Content-Type: application/json" \
+-d '{"name": "Sample Item", "description": "A description of the item.", "price": 10.99}'
+```
+
+- **List all items** (GET request):
+```bash
+curl -X GET http://localhost:8080/api/items
+```
+
+- **Get an item by ID** (GET request):
+```bash
+curl -X GET http://localhost:8080/api/items/1
+```
+
+- **Update an item** (PUT request):
+```bash
+curl -X PUT http://localhost:8080/api/items/1 \
+-H "Content-Type: application/json" \
+-d '{"name": "Updated Item", "description": "Updated description.", "price": 12.99}'
+```
+
+- **Delete an item** (DELETE request):
+```bash
+curl -X DELETE http://localhost:8080/api/items/1
+```
+
 
 ## Contributing
 Contributions are welcome! To contribute:
