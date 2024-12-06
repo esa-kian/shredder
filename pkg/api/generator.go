@@ -249,15 +249,15 @@ func GenerateControllerFile(entityName string) error {
 		} 
 
 		func (c *%sController) Update(w http.ResponseWriter, r *http.Request) { 
-		// TODO: Implement Create 
+		// TODO: Implement Update 
 		} 
 
 		func (c *%sController) Read(w http.ResponseWriter, r *http.Request) { 
-		// TODO: Implement Create 
+		// TODO: Implement Read 
 		} 
 
 		func (c *%sController) Delete(w http.ResponseWriter, r *http.Request) { 
-		// TODO: Implement Create 
+		// TODO: Implement Delete 
 		} 
 		`, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName, entityName)
 	// Write controller file
